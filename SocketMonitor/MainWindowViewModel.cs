@@ -5,10 +5,10 @@ using TTech.SocketMonitor.Lists;
 
 namespace TTech.SocketMonitor
 {
-    public class MainWindowViewModel : ViewModelBase, IDisposable
+    public class MainWindowViewModel : ViewModelBase
     {
         private readonly Timer timer = new Timer(500);
-        
+
         public MainWindowViewModel()
         {
             Settings = new Settings.SettingsViewModel();
@@ -31,30 +31,11 @@ namespace TTech.SocketMonitor
             timer.Start();
         }
 
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
+        public override void Cleanup()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
+            timer.Dispose();
+            Connections = null;
+            base.Cleanup();
         }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    timer.Dispose();
-                }
-
-                Connections = null;
-
-                disposedValue = true;
-            }
-        }
-        #endregion
     }
 }
