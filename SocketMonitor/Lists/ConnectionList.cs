@@ -20,23 +20,10 @@ namespace TTech.SocketMonitor.Lists
         public ConnectionList(Settings.Filters filters)
         {
             this.filters = filters;
-            IsNotifying = true;
-        }
-
-        /// <summary>
-        /// Enables/Disables property change notification.
-        /// </summary>
-        public bool IsNotifying { get; set; }
-
-        public void NotifyOfPropertyChange(string propertyName)
-        {
-            if (IsNotifying)
-                GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke((() => OnPropertyChanged(new PropertyChangedEventArgs(propertyName))));
         }
 
         public void Update()
         {
-            IsNotifying = false;
             var tcpChanges = tcpRows.Update();
             UpdateTcpRows(tcpChanges.newRows, tcpChanges.changedRows, tcpChanges.removedRows);
             var udpChanges = udpRows.Update();
@@ -44,35 +31,6 @@ namespace TTech.SocketMonitor.Lists
 
             if (tcpChanges.newRows.Count > 0 || udpChanges.newRows.Count > 0)
                 Sort();
-            IsNotifying = true;
-
-            if (tcpChanges.newRows.Count > 0 || udpChanges.newRows.Count > 0 ||
-                tcpChanges.changedRows.Count > 0 ||
-                tcpChanges.removedRows.Count > 0 || udpChanges.removedRows.Count > 0)
-            {
-                GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
-                {
-                    OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-                    OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                });
-            }
-        }
-
-        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        {
-            if (IsNotifying)
-            {
-                base.OnCollectionChanged(e);
-            }
-        }
-
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            if (IsNotifying)
-            {
-                base.OnPropertyChanged(e);
-            }
         }
 
         private new void Add(ConnectionModel model)
@@ -118,20 +76,23 @@ namespace TTech.SocketMonitor.Lists
                 var model = new ConnectionModel(item);
                 var existing = this.First(x => x.Equals(model));
                 if (existing.State != SocketState.Closed)
+                {
                     existing.SetSocketState(SocketState.Closed);
+                }
             }
 
             var now = DateTime.Now.AddMilliseconds(-2000);
             GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
             {
                 foreach (var item in newRows)
+                {
                     Add(new ConnectionModel(item));
+                }
 
                 foreach (var item in this.Where(x => x.State == SocketState.Closed && (now - x.LastChange).TotalMilliseconds > 0).ToList())
+                {
                     base.Remove(item);
-
-                //foreach (var item in Items.Where(x => IsFiltered(x)).ToList())
-                //    base.Remove(item);
+                }
             });
 
             foreach (var item in this.Where(x => x.State != SocketState.Steady && (now - x.LastChange).TotalMilliseconds > 0))
@@ -145,21 +106,29 @@ namespace TTech.SocketMonitor.Lists
                 var model = new ConnectionModel(item);
                 var existing = this.FirstOrDefault(x => x.Equals(model));
                 if (existing != null && existing.State != SocketState.Closed)
+                {
                     existing.SetSocketState(SocketState.Closed);
+                }
             }
 
             var now = DateTime.Now.AddMilliseconds(-2000);
             GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
             {
                 foreach (var item in newRows)
+                {
                     Add(new ConnectionModel(item));
+                }
 
                 foreach (var item in this.Where(x => x.State == SocketState.Closed && (now - x.LastChange).TotalMilliseconds > 0).ToList())
+                {
                     base.Remove(item);
+                }
             });
 
             foreach (var item in this.Where(x => x.State != SocketState.Steady && (now - x.LastChange).TotalMilliseconds > 0))
+            {
                 item.SetSocketState(SocketState.Steady);
+            }
         }
     }
 }

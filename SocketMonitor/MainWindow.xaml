@@ -47,9 +47,9 @@
                         <Setter Property="Background" Value="{Binding State, Converter={StaticResource stateToBackgroundConverter}}" />
                     </Style>
                 </ListView.ItemContainerStyle>
-                <ListView.GroupStyle>
+                <!--<ListView.GroupStyle>
                     <x:Static Member="GroupStyle.Default"/>
-                </ListView.GroupStyle>
+                </ListView.GroupStyle>-->
 
                 <ListView.View>
                     <GridView AllowsColumnReorder="True" >
