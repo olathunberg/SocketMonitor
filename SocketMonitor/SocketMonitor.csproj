@@ -72,6 +72,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Lists\ConnectionList.cs" />
     <Compile Include="Lists\ListExtension.cs" />
     <Compile Include="Lists\TcpList.cs" />
@@ -87,7 +88,9 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Lists\UdpList.cs" />
     <Compile Include="Models\ConnectionModel.cs" />
-    <Compile Include="Settings\Filters.cs" />
+    <Compile Include="Settings\Filter\FilterBase.cs" />
+    <Compile Include="Settings\Filter\LocalEndPointAnyFilter.cs" />
+    <Compile Include="Settings\Filter\RemoteEndPointAnyFilter.cs" />
     <Compile Include="Settings\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>

@@ -1,5 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using System;
+using System.Collections.Generic;
+using TTech.SocketMonitor.Settings.Filter;
 
 namespace TTech.SocketMonitor.Settings
 {
@@ -7,9 +9,19 @@ namespace TTech.SocketMonitor.Settings
     {
         public SettingsViewModel()
         {
-            Filters= new Filters();
+            Filters = new List<FilterBase>
+            {
+                new LocalEndPointAnyFilter
+                {
+                    IsEnabled = true
+                },
+                new RemoteEndPointAnyFilter
+                {
+                    IsEnabled = true
+                }
+            };
         }
 
-        public Filters Filters { get; set; }
+        public IEnumerable<FilterBase> Filters { get; set; }
     }
 }

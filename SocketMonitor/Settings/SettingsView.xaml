@@ -3,12 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TTech.SocketMonitor.Settings"
              mc:Ignorable="d" 
-             Width="100"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <CheckBox IsChecked="{Binding Filter.LocalHost}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
 
+        <TextBlock Text="Filters"/>
+        <ListBox Grid.Row="1" ItemsSource="{Binding Filters}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox Content="{Binding Description}"
+                              IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

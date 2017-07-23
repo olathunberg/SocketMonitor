@@ -7,17 +7,18 @@ using System.Linq;
 using System.Net;
 using TTech.SocketMonitor.Models;
 using TTech.SocketMonitor.Settings;
+using TTech.SocketMonitor.Settings.Filter;
 using TTech.SocketMonitor.SocketHelpers;
 
 namespace TTech.SocketMonitor.Lists
 {
     public sealed class ConnectionList : ObservableCollection<ConnectionModel>
     {
-        private readonly Filters filters;
+        private readonly IEnumerable<FilterBase> filters;
         private readonly TcpList tcpRows = new TcpList();
         private readonly UdpList udpRows = new UdpList();
 
-        public ConnectionList(Settings.Filters filters)
+        public ConnectionList(IEnumerable<FilterBase> filters)
         {
             this.filters = filters;
         }
@@ -31,10 +32,16 @@ namespace TTech.SocketMonitor.Lists
 
             if (tcpChanges.newRows.Count > 0 || udpChanges.newRows.Count > 0)
                 Sort();
+
+            foreach (var item in Items)
+            {
+                item.SetIsFiltered(filters);
+            }
         }
 
         private new void Add(ConnectionModel model)
         {
+            model.SetIsFiltered(filters);
             try
             {
                 var process = System.Diagnostics.Process.GetProcessById(model.ProcessId);
@@ -82,18 +89,22 @@ namespace TTech.SocketMonitor.Lists
             }
 
             var now = DateTime.Now.AddMilliseconds(-2000);
-            GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
+            var removed = this.Where(x => x.State == SocketState.Closed && (now - x.LastChange).TotalMilliseconds > 0).ToList();
+            if (newRows.Count > 0 || removed.Count > 0)
             {
-                foreach (var item in newRows)
+                GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
                 {
-                    Add(new ConnectionModel(item));
-                }
+                    foreach (var item in newRows)
+                    {
+                        Add(new ConnectionModel(item));
+                    }
 
-                foreach (var item in this.Where(x => x.State == SocketState.Closed && (now - x.LastChange).TotalMilliseconds > 0).ToList())
-                {
-                    base.Remove(item);
-                }
-            });
+                    foreach (var item in removed)
+                    {
+                        base.Remove(item);
+                    }
+                });
+            }
 
             foreach (var item in this.Where(x => x.State != SocketState.Steady && (now - x.LastChange).TotalMilliseconds > 0))
                 item.SetSocketState(SocketState.Steady);
@@ -112,18 +123,23 @@ namespace TTech.SocketMonitor.Lists
             }
 
             var now = DateTime.Now.AddMilliseconds(-2000);
-            GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
-            {
-                foreach (var item in newRows)
-                {
-                    Add(new ConnectionModel(item));
-                }
+            var removed = this.Where(x => x.State == SocketState.Closed && (now - x.LastChange).TotalMilliseconds > 0).ToList();
 
-                foreach (var item in this.Where(x => x.State == SocketState.Closed && (now - x.LastChange).TotalMilliseconds > 0).ToList())
+            if (newRows.Count > 0 || removed.Count > 0)
+            {
+                GalaSoft.MvvmLight.Threading.DispatcherHelper.UIDispatcher.Invoke(() =>
                 {
-                    base.Remove(item);
-                }
-            });
+                    foreach (var item in newRows)
+                    {
+                        Add(new ConnectionModel(item));
+                    }
+
+                    foreach (var item in removed)
+                    {
+                        base.Remove(item);
+                    }
+                });
+            }
 
             foreach (var item in this.Where(x => x.State != SocketState.Steady && (now - x.LastChange).TotalMilliseconds > 0))
             {

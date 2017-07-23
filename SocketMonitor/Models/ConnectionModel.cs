@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using TTech.SocketMonitor.Settings;
+using TTech.SocketMonitor.Settings.Filter;
 using TTech.SocketMonitor.SocketHelpers;
 
 namespace TTech.SocketMonitor.Models
 {
-    public class ConnectionModel : GalaSoft.MvvmLight.ObservableObject, IEquatable<ConnectionModel>, IComparable
+    public sealed class ConnectionModel : GalaSoft.MvvmLight.ObservableObject, IEquatable<ConnectionModel>, IComparable
     {
         private readonly IPEndPoint localEndPoint;
         private readonly IPEndPoint remoteEndPoint;
@@ -41,6 +45,7 @@ namespace TTech.SocketMonitor.Models
             sockState = SocketState.New;
         }
 
+
         public ConnectionModel(IpHelper.UdpRow udpRow)
         {
             processId = udpRow.owningPid;
@@ -68,7 +73,25 @@ namespace TTech.SocketMonitor.Models
             }
         }
 
+        internal void SetIsFiltered(IEnumerable<FilterBase> filters)
+        {
+            var isFiltered = false;
+
+            if (filters.Any(x => x.IsEnabled && x.IsAffected(this)))
+                isFiltered = true;
+            else
+                isFiltered = false;
+
+            if (isFiltered != IsFiltered)
+            {
+                IsFiltered = isFiltered;
+                RaisePropertyChanged(() => IsFiltered);
+            }
+        }
+
         #region Public properties
+        public bool IsFiltered { get; set; }
+
         public IPEndPoint LocalEndPoint => localEndPoint;
 
         public IPEndPoint RemoteEndPoint => remoteEndPoint;
@@ -127,9 +150,9 @@ namespace TTech.SocketMonitor.Models
             RaisePropertyChanged(() => State);
         }
 
-        public override bool Equals(object otherObj)
+        public override bool Equals(object obj)
         {
-            var x = otherObj as ConnectionModel;
+            var x = obj as ConnectionModel;
             var y = this;
 
             if (x == null)
