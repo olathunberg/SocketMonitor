@@ -91,6 +91,8 @@
     <Compile Include="Settings\Filter\FilterBase.cs" />
     <Compile Include="Settings\Filter\LocalEndPointAnyFilter.cs" />
     <Compile Include="Settings\Filter\RemoteEndPointAnyFilter.cs" />
+    <Compile Include="Settings\Filter\TcpFilter.cs" />
+    <Compile Include="Settings\Filter\UdpFilter.cs" />
     <Compile Include="Settings\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>

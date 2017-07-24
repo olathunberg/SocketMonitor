@@ -18,7 +18,9 @@ namespace TTech.SocketMonitor.Settings
                 new RemoteEndPointAnyFilter
                 {
                     IsEnabled = true
-                }
+                },
+                new TcpFilter(),
+                new UdpFilter()
             };
         }
 

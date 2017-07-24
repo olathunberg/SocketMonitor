@@ -61,6 +61,8 @@ namespace TTech.SocketMonitor.Lists
                             try { row.SetRemoteHostName(Dns.EndGetHostEntry(x).HostName); }
                             catch { row.SetRemoteHostName("Host not found"); }
                         }, model);
+
+            // TODO: Insert at correct position
             base.Add(model);
         }
 
