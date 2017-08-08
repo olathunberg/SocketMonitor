@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using TTech.SocketMonitor.Models;
-using TTech.SocketMonitor.Settings;
 using TTech.SocketMonitor.Settings.Filter;
 using TTech.SocketMonitor.SocketHelpers;
 
@@ -30,8 +27,6 @@ namespace TTech.SocketMonitor.Lists
             var udpChanges = udpRows.Update();
             UpdateUdpRows(udpChanges.newRows, udpChanges.removedRows);
 
-            if (tcpChanges.newRows.Count > 0 || udpChanges.newRows.Count > 0)
-                Sort();
 
             foreach (var item in Items)
             {
@@ -52,8 +47,10 @@ namespace TTech.SocketMonitor.Lists
                 // Process has exited...
             }
 
-            if (model.RemoteEndPoint != null && !model.RemoteEndPoint.Address.Equals(new IPAddress(0)))
-                System.Net.Dns.BeginGetHostEntry(model.RemoteEndPoint.Address.ToString(),
+            // TODO: Improve
+            if (model.RemoteEndPoint != null && !model.RemoteEndPoint.Address.Equals(IPAddress.Any))
+            {
+                Dns.BeginGetHostEntry(model.RemoteEndPoint.Address.ToString(),
                     x =>
                         {
                             var row = (ConnectionModel)x.AsyncState;
@@ -61,9 +58,28 @@ namespace TTech.SocketMonitor.Lists
                             try { row.SetRemoteHostName(Dns.EndGetHostEntry(x).HostName); }
                             catch { row.SetRemoteHostName("Host not found"); }
                         }, model);
+            }
 
-            // TODO: Insert at correct position
-            base.Add(model);
+            // Insert at correct position
+            if (Items.Count == 0)
+            {
+                base.Add(model);
+            }
+            else
+            {
+                var isAdded = false;
+                for (int i = 0; i < Items.Count; i++)
+                {
+                    if (model.CompareTo(Items[i]) < 0)
+                    {
+                        base.InsertItem(i, model);
+                        isAdded = true;
+                        break;
+                    }
+                }
+                if (!isAdded)
+                    base.Add(model);
+            }
         }
 
         private void Sort()
@@ -77,7 +93,8 @@ namespace TTech.SocketMonitor.Lists
             {
                 var model = new ConnectionModel(item);
                 var existing = this.First(x => x.Equals(model));
-                existing.Update(model);
+                if (existing != null)
+                    existing.Update(model);
             }
 
             foreach (var item in removedRows)
