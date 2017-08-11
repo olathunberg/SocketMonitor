@@ -9,13 +9,18 @@
         mc:Ignorable="d"
         WindowState="Maximized"
         Title="SocketMonitor" 
-        Height="350" Width="525">
+        Height="350" Width="525"
+        d:DataContext="{d:DesignInstance local:MainWindowViewModel}">
 
     <Window.Resources>
         <ResourceDictionary>
             <local:MainWindowViewModel x:Key="MainViewModel" />
             <converters:StateToBackgroundConverter x:Key="stateToBackgroundConverter"/>
             <converters:InverseBooleanToVisibilityConverter x:Key="inverseBooleanToVisibilityConverter" />
+
+            <!--<Style TargetType="{x:Type TextBlock}" >
+                <Setter Property="Margin" Value="10,0,10,0"/>
+            </Style>-->
         </ResourceDictionary>
     </Window.Resources>
 
@@ -25,52 +30,48 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ListView ItemsSource="{Binding Connections}" >
+
+            <ListView ItemsSource="{Binding Connections}" HorizontalContentAlignment="Stretch">
                 <ListView.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListViewItem}">
+                    <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="Visibility" Value="{Binding IsFiltered, Converter={StaticResource inverseBooleanToVisibilityConverter}}" />
                         <Setter Property="Background" Value="{Binding State, Converter={StaticResource stateToBackgroundConverter}}" />
                     </Style>
                 </ListView.ItemContainerStyle>
 
-                <ListView.View>
-                    <GridView AllowsColumnReorder="True" >
-                        <GridViewColumn DisplayMemberBinding="{Binding ProcessId}" 
-                                    Header="ProcessId" 
-                                    Width="100"/>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.Resources>
+                                <ResourceDictionary>
+                                    <Style TargetType="{x:Type TextBlock}" >
+                                        <Setter Property="Margin" Value="5,0,10,0"/>
+                                    </Style>
+                                </ResourceDictionary>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
 
-                        <GridViewColumn DisplayMemberBinding="{Binding Process}" 
-                                    Header="Process" 
-                                    Width="100"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding TcpState}" 
-                                    Header="TcpState"
-                                    Width="100"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding LocalEndPoint.Address}" 
-                                    Header="LocalEndPoint" 
-                                    Width="100"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding LocalEndPoint.Port}" 
-                                    Header="LocalEndPointPort" 
-                                    Width="100"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding RemoteEndPoint.Address}" 
-                                    Header="RemoteEndPoint" 
-                                    Width="100"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding RemoteEndPoint.Port}" 
-                                    Header="RemoteEndPointPort" 
-                                    Width="100"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding RemoteHostName}" 
-                                    Header="RemoteHostName" 
-                                    Width="200"/>
-
-                        <GridViewColumn DisplayMemberBinding="{Binding Path}" 
-                                    Header="Path"/>
-                    </GridView>
-                </ListView.View>
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding ProcessId, Mode=OneWay}"/>
+                            <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding Process, Mode=OneWay}"/>
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding TcpState, Mode=OneWay}"/>
+                            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding LocalEndPoint.Address, Mode=OneWay}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding LocalEndPoint.Port, Mode=OneWay}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding RemoteEndPoint.Address, Mode=OneWay}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding RemoteEndPoint.Port, Mode=OneWay}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Grid.Row="0" Text="{Binding RemoteHostName, Mode=OneWay}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </ListView>
 
             <Settings:SettingsView DataContext="{Binding Settings}"
