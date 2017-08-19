@@ -47,7 +47,6 @@ namespace TTech.SocketMonitor.Lists
                 // Process has exited...
             }
 
-            // TODO: Improve
             if (model.RemoteEndPoint != null && !model.RemoteEndPoint.Address.Equals(IPAddress.Any))
             {
                 Dns.BeginGetHostEntry(model.RemoteEndPoint.Address.ToString(),
